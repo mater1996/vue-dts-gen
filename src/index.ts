@@ -30,10 +30,12 @@ export async function build({ input, outDir }: Options) {
   const tsConfigFilePath = fs.existsSync('tsconfig.json')
     ? 'tsconfig.json'
     : undefined
+
   const project = new Project({
     compilerOptions: {
       allowJs: true,
       declaration: true,
+      declarationDir: 'lib',
       emitDeclarationOnly: true,
       noEmitOnError: true,
       outDir,
@@ -41,69 +43,103 @@ export async function build({ input, outDir }: Options) {
     tsConfigFilePath,
     skipAddingFilesFromTsConfig: true,
   })
+
   const files = await glob(input)
 
   const sourceFiles: SourceFile[] = []
 
+  function transfromFactory(context: ts.TransformationContext) {
+    return (
+      sourceFile: ts.SourceFile | ts.Bundle,
+    ): ts.SourceFile | ts.Bundle => {
+      const { factory } = context
+      const visitor: ts.Visitor = (node) => {
+        if (ts.isImportDeclaration(node)) {
+          return factory.updateImportDeclaration(
+            node,
+            node.decorators,
+            node.modifiers,
+            node.importClause,
+            ts.factory.createStringLiteral(
+              node.moduleSpecifier
+                .getText()
+                .replace(/.vue/, '')
+                .replace(/'/g, ''),
+              true,
+            ),
+          )
+        }
+        return ts.visitEachChild(node, visitor, context)
+      }
+      return ts.visitNode(sourceFile, visitor)
+    }
+  }
+
+  function processVue(filePath: string, content: string) {
+    const sfc = vueCompiler.parse(content)
+    const { script, scriptSetup } = sfc.descriptor
+    if (script || scriptSetup) {
+      let content = ''
+      let isTS = false
+      if (script && script.content) {
+        content += script.content
+        if (script.lang === 'ts') isTS = true
+      }
+      if (scriptSetup) {
+        const compiled = vueCompiler.compileScript(sfc.descriptor, {
+          id: 'xxx',
+        })
+        content += compiled.content
+        if (scriptSetup.lang === 'ts') isTS = true
+      }
+      const sourceFile = project.createSourceFile(
+        filePath + (isTS ? '.ts' : '.js'),
+        content,
+      )
+      sourceFiles.push(sourceFile)
+    }
+  }
+
+  function processTs(filePath: string, content: string) {
+    const sourceFile = project.getSourceFile(filePath)
+    if (sourceFile) {
+      sourceFiles.push(sourceFile)
+    }
+  }
+
   await Promise.all(
     files.map(async (file) => {
+      const extname = path.extname(file)
+      const filePath = path.relative(process.cwd(), file)
       const content = await fs.promises.readFile(file, 'utf8')
-      const sfc = vueCompiler.parse(content)
-      const { script, scriptSetup } = sfc.descriptor
-      if (script || scriptSetup) {
-        let content = ''
-        let isTS = false
-        if (script && script.content) {
-          content += script.content
-          if (script.lang === 'ts') isTS = true
-        }
-        if (scriptSetup) {
-          const compiled = vueCompiler.compileScript(sfc.descriptor, {
-            id: 'xxx',
-          })
-          content += compiled.content
-          if (scriptSetup.lang === 'ts') isTS = true
-        }
-        const sourceFile = project.createSourceFile(
-          path.relative(process.cwd(), file) + (isTS ? '.ts' : '.js'),
-          content,
-        )
-        sourceFile.transform((traversal) => {
-          const node = traversal.visitChildren() // return type is `ts.Node`
-          if (ts.isImportDeclaration(node)) {
-            return ts.factory.updateImportDeclaration(
-              node,
-              node.decorators,
-              node.modifiers,
-              node.importClause,
-              ts.factory.createStringLiteral(
-                node.moduleSpecifier
-                  .getText()
-                  .replace(/\.vue/, '')
-                  .replace(/^'|'$/g, ''),
-                true,
-              ),
-            )
-          }
-          return node
-        })
-        sourceFiles.push(sourceFile)
+      switch (extname) {
+        case '.vue':
+          processVue(filePath, content)
+          break
+        case '.ts':
+          processTs(filePath, content)
+          break
       }
     }),
   )
 
+  console.log(project.getSourceFiles())
+
   const diagnostics = project.getPreEmitDiagnostics()
   console.log(project.formatDiagnosticsWithColorAndContext(diagnostics))
 
-  project.emitToMemory()
+  const memoryResult = project.emitToMemory({
+    customTransformers: {
+      afterDeclarations: [transfromFactory],
+    },
+  })
 
-  for (const sourceFile of sourceFiles) {
-    const emitOutput = sourceFile.getEmitOutput()
-    for (const outputFile of emitOutput.getOutputFiles()) {
-      const filepath = outputFile.getFilePath().replace('.vue.d.ts', '.d.ts')
-      await fs.promises.mkdir(path.dirname(filepath), { recursive: true })
-      await fs.promises.writeFile(filepath, outputFile.getText(), 'utf8')
-      console.log(`Emitted ${filepath}`)
-    }
+  console.log(memoryResult.getFiles())
+
+  for (const outputFile of memoryResult.getFiles()) {
+    const filepath = outputFile.filePath.replace('.vue.d.ts', '.d.ts')
+    await fs.promises.mkdir(path.dirname(filepath), { recursive: true })
+    await fs.promises.writeFile(filepath, outputFile.text, 'utf8')
+    console.log(`Emitted ${filepath}`)
   }
 }
