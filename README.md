@@ -1,10 +1,13 @@
-**💛 You can help the author become a full-time open-source maintainer by [sponsoring him on GitHub](https://github.com/sponsors/egoist).**
-
----
-
 # vue-dts-gen
 
-[![npm version](https://badgen.net/npm/v/vue-dts-gen)](https://npm.im/vue-dts-gen)
+forked from [vue-dts-gen](https://badgen.net/npm/v/vue-dts-gen)
+
+
+## CHANGE
+
+- support import type from `.vue` files.
+- pass `.ts` file
+- use tsconfig as internal configuration
 
 Generate `d.ts` from `.vue` files.
 
@@ -24,20 +27,24 @@ npm i -D vue-dts-gen
 
 ## Usage
 
-Output directory is determined by `outDir` in `tsconfig.json`.
+`ts-config.json`
 
-Assuming the `outDir` is `dist`:
+```json
+{
+  "declaration": true,
+  "declarationDir": "lib",
+  "emitDeclarationOnly": true
+}
+```
 
 ```bash
 vue-dts-gen src/App.vue
-# Emits dist/App.d.ts
+# Emits ${declarationDir}/App.d.ts
 
 # Or glob patterns
-vue-dts-gen "src/*.vue"
-# Emits dist/*.d.ts
+vue-dts-gen
+# Emits ${declarationDir}/*.d.ts
 ```
-
-Only `d.ts` files are emitted.
 
 ## Example
 
@@ -107,4 +114,4 @@ export default _default;
 
 ## License
 
-MIT &copy; [EGOIST](https://github.com/sponsors/egoist)
+MIT &copy; [mater1996](https://github.com/sponsors/mater1996)
