@@ -1,2 +1,2 @@
-import { Test } from './components/HelloWorld.vue';
+import { Test } from "./components/HelloWorld";
 export { Test };

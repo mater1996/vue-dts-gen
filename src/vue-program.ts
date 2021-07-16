@@ -8,29 +8,26 @@
  * 对所有的vue type 文件进行修改为.d.ts
  */
 
-import ts, { SourceFile } from 'typescript'
 import fs from 'fs'
 import { parse, compileScript } from '@vue/compiler-sfc'
 
-function createSourceFile (fileName: string): SourceFile | undefined {
-  const content = fs.readFileSync(fileName, 'utf-8')
-  const sfc = parse(content)
+function readVueFile (fileName: string): string {
+  const fileContent = fs.readFileSync(fileName, 'utf-8')
+  const sfc = parse(fileContent)
   const { script, scriptSetup } = sfc.descriptor
-  if (Boolean(script) || Boolean(scriptSetup)) {
-    let content = ''
-    if (script?.content != null) {
-      const scriptContent = script.content
-      content = `${content}${scriptContent}`
-    }
-    if (scriptSetup != null) {
-      const compiled = compileScript(sfc.descriptor, {
-        id: 'xxx'
-      })
-      const compiledContent = compiled.content
-      content = `${content}${compiledContent}`
-    }
-    return ts.createSourceFile(fileName, content, ts.ScriptTarget.Latest, true)
+  let content = ''
+  if (script?.content != null) {
+    const scriptContent = script.content
+    content = `${content}${scriptContent}`
   }
+  if (scriptSetup != null) {
+    const compiled = compileScript(sfc.descriptor, {
+      id: 'xxx'
+    })
+    const compiledContent = compiled.content
+    content = `${content}${compiledContent}`
+  }
+  return content
 }
 
-export { createSourceFile }
+export { readVueFile }

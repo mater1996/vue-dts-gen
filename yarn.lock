@@ -2049,7 +2049,7 @@ fast-glob@^3.0.3:
     merge2 "^1.3.0"
     micromatch "^4.0.4"
 
-fast-glob@^3.1.1, fast-glob@^3.2.5:
+fast-glob@^3.1.1:
   version "3.2.6"
   resolved "https://artifactory.intra.xiaojukeji.com:443/artifactory/api/npm/npm/fast-glob/-/fast-glob-3.2.6.tgz?dl=https%3A%2F%2Frepo.huaweicloud.com%2Frepository%2Fnpm%2Ffast-glob%2F-%2Ffast-glob-3.2.6.tgz#434dd9529845176ea049acc9343e8282765c6e1a"
   integrity sha1-Q03ZUphFF26gSazJND6CgnZcbho=

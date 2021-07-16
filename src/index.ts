@@ -5,60 +5,39 @@
  * @Description:
  */
 import ts from 'typescript'
-import { createSourceFile as createVueSourceFile } from './vue-program'
-import { readConfigFile, findVueFiles } from './utils'
+import { readVueFile } from './vue-program'
+import { readConfigFile } from './utils'
+
+const vueTsReg = /\.vue\.ts$/
+const vueDTsReg = /vue\.d\.ts$/
 
 function overwriteCompilerHost (host: ts.CompilerHost): ts.CompilerHost {
-  const getSourceFile = host.getSourceFile
   const writeFile = host.writeFile
-
-  host.writeFile = (
-    fileName,
-    data,
-    writeByteOrderMark,
-    onError,
-    sourceFiles
-  ) => {
-    return writeFile(
-      fileName.replace('vue.d.ts', 'd.ts'),
-      data,
-      writeByteOrderMark,
-      onError,
-      sourceFiles
-    )
-  }
-
-  host.getSourceFile = (fileName: string, languageVersion: ts.ScriptTarget) => {
-    const isVue = /.vue.ts$/.test(fileName)
-    let sourceFile
-    if (isVue) {
-      sourceFile = createVueSourceFile(fileName.replace(/.ts$/, ''))
-    } else {
-      sourceFile = getSourceFile(fileName, languageVersion)
+  const readFile = host.readFile
+  host.readFile = (fileName: string) => {
+    if (vueTsReg.test(fileName)) {
+      return readVueFile(fileName.replace(vueTsReg, '.vue'))
     }
-    return sourceFile
+    return readFile(fileName)
   }
-
+  host.writeFile = (fileName, ...args) => {
+    return writeFile(fileName.replace(vueDTsReg, 'd.ts'), ...args)
+  }
   return host
 }
 
 function transfromFactory (context: ts.TransformationContext) {
   return (sourceFile: ts.SourceFile | ts.Bundle): ts.SourceFile | ts.Bundle => {
     const { factory } = context
-    const visitor: ts.Visitor = node => {
+    const visitor: ts.Visitor = (node) => {
       if (ts.isImportDeclaration(node)) {
+        const text = node.moduleSpecifier.getText()
         return factory.updateImportDeclaration(
           node,
           node.decorators,
           node.modifiers,
           node.importClause,
-          ts.factory.createStringLiteral(
-            node.moduleSpecifier
-              .getText()
-              .replace(/\.vue$/, '')
-              .replace(/'/g, ''),
-            true
-          )
+          factory.createStringLiteral(text.replace(/^'|\.vue'$/g, ''))
         )
       }
       return ts.visitEachChild(node, visitor, context)
@@ -70,7 +49,7 @@ function transfromFactory (context: ts.TransformationContext) {
 function compile (fileNames: string[], options: ts.CompilerOptions): void {
   const host = overwriteCompilerHost(ts.createCompilerHost(options))
   const program = ts.createProgram(fileNames, options, host)
-  fileNames.forEach(fileName => {
+  fileNames.forEach((fileName) => {
     const sourceFile = program.getSourceFile(fileName)
     program.emit(sourceFile, undefined, undefined, undefined, {
       afterDeclarations: [transfromFactory]
@@ -80,10 +59,6 @@ function compile (fileNames: string[], options: ts.CompilerOptions): void {
 
 export function build (): void {
   const tsConfig = readConfigFile('tsconfig.json')
-  const { options } = tsConfig
-  const { rootDirs = [], rootDir = '' } = options
-  const vueFileNames = findVueFiles([rootDir, ...rootDirs]).map(
-    v => (v += '.ts')
-  )
-  return compile([...tsConfig.fileNames, ...vueFileNames], tsConfig.options)
+  console.log(tsConfig)
+  return compile(tsConfig.fileNames, tsConfig.options)
 }
