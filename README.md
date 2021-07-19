@@ -2,11 +2,10 @@
 
 forked from [vue-dts-gen](https://badgen.net/npm/v/vue-dts-gen)
 
-
 ## CHANGE
 
 - support import type from `.vue` files.
-- pass `.ts` file
+- support ts transform hook
 - use tsconfig as internal configuration
 
 Generate `d.ts` from `.vue` files.
@@ -16,13 +15,13 @@ Generate `d.ts` from `.vue` files.
 Globally:
 
 ```bash
-npm i -g vue-dts-gen
+npm i -g vue-dts-generator
 ```
 
 Or locally:
 
 ```
-npm i -D vue-dts-gen
+npm i -D vue-dts-generator
 ```
 
 ## Usage
@@ -33,16 +32,13 @@ npm i -D vue-dts-gen
 {
   "declaration": true,
   "declarationDir": "lib",
-  "emitDeclarationOnly": true
+  "emitDeclarationOnly": true,
+  "include": ["src/**/*.vue", "src/**/*.ts"]
 }
 ```
 
 ```bash
-vue-dts-gen src/App.vue
-# Emits ${declarationDir}/App.d.ts
-
-# Or glob patterns
-vue-dts-gen
+vue-dts-generator --log
 # Emits ${declarationDir}/*.d.ts
 ```
 

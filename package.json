@@ -1,5 +1,5 @@
 {
-  "name": "vue-dts-gen",
+  "name": "vue-dts-generator",
   "version": "0.1.0",
   "license": "MIT",
   "bin": "bin/cli.js",
