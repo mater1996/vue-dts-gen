@@ -8,6 +8,10 @@
     "bin"
   ],
   "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:mater1996/vue-dts-gen.git"
+  },
   "scripts": {
     "build": "node scripts/build",
     "gen": "cd ./examples && node ../bin/cli",
