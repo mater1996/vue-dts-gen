@@ -10,7 +10,8 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "node scripts/build",
-    "gen": "cd ./examples && node ../bin/cli"
+    "gen": "cd ./examples && node ../bin/cli",
+    "release": "release-it"
   },
   "dependencies": {
     "cac": "^6.7.2"
