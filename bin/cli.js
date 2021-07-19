@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 const { cac } = require('cac')
-const cli = cac('vue-dts-gen')
+const cli = cac('vue-dts-generator')
 const pkg = require('../package.json')
 
 cli
