@@ -15,13 +15,13 @@ Generate `d.ts` from `.vue` files.
 Globally:
 
 ```bash
-npm i -g vue-dts-generator
+npm i -g vue-dts-gen
 ```
 
 Or locally:
 
 ```
-npm i -D vue-dts-generator
+npm i -D vue-dts-gen
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ npm i -D vue-dts-generator
 ```
 
 ```bash
-vue-dts-generator --log
+vue-dts-gen --log
 # Emits ${declarationDir}/*.d.ts
 ```
 
