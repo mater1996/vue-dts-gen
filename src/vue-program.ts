@@ -3,11 +3,7 @@
  * @Email: bxh8640@gmail.com
  * @Date: 2021-07-08 15:12:57
  * @Description:
- * 解决引入路径是.vue的问题
- * 统一对所有引入路径是.vue进行抹平，直接移除.vue
- * 对所有的vue type 文件进行修改为.d.ts
  */
-
 import fs from 'fs'
 import { parse, compileScript } from '@vue/compiler-sfc'
 

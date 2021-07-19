@@ -59,6 +59,5 @@ function compile (fileNames: string[], options: ts.CompilerOptions): void {
 
 export function build (): void {
   const tsConfig = readConfigFile('tsconfig.json')
-  console.log(tsConfig)
   return compile(tsConfig.fileNames, tsConfig.options)
 }

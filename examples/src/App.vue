@@ -7,11 +7,11 @@
 
 <script lang="ts">
 import { defineComponent } from 'vue'
-import { Test } from './components/HelloWorld.vue'
+import HelloWorld, { Test } from './components/HelloWorld.vue'
 
 export { Test }
 
-defineComponent({
+export default defineComponent({
   components: {
     HelloWorld,
   },
