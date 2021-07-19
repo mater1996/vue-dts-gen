@@ -1,4 +1,4 @@
-# vue-dts-gen
+# vue-dts-generator
 
 forked from [vue-dts-gen](https://badgen.net/npm/v/vue-dts-gen)
 
@@ -15,13 +15,13 @@ Generate `d.ts` from `.vue` files.
 Globally:
 
 ```bash
-npm i -g vue-dts-gen
+npm i -g vue-dts-generator
 ```
 
 Or locally:
 
 ```
-npm i -D vue-dts-gen
+npm i -D vue-dts-generator
 ```
 
 ## Usage
@@ -38,7 +38,7 @@ npm i -D vue-dts-gen
 ```
 
 ```bash
-vue-dts-gen --log
+vue-dts-generator
 # Emits ${declarationDir}/*.d.ts
 ```
 
