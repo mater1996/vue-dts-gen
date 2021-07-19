@@ -5,7 +5,6 @@ forked from [vue-dts-gen](https://badgen.net/npm/v/vue-dts-gen)
 ## CHANGE
 
 - support import type from `.vue` files.
-- support ts transform hook
 - use tsconfig as internal configuration
 
 Generate `d.ts` from `.vue` files.
