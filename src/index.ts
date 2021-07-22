@@ -12,7 +12,7 @@ const vueTsReg = /\.vue\.ts$/
 const vueDTsReg = /vue\.d\.ts$/
 const vueImportReg = /^'|\.vue'$/g
 
-function overwriteCompilerHost (host: ts.CompilerHost): ts.CompilerHost {
+export function overwriteCompilerHost (host: ts.CompilerHost): ts.CompilerHost {
   const writeFile = host.writeFile
   const readFile = host.readFile
   host.readFile = (fileName: string) => {
@@ -32,6 +32,7 @@ export function transfromFactory (context: ts.TransformationContext) {
     const { factory } = context
     const visitor: ts.Visitor = (node) => {
       if (ts.isImportDeclaration(node)) {
+        console.log(node)
         const text = node.moduleSpecifier.getText()
         return factory.updateImportDeclaration(
           node,
@@ -57,7 +58,8 @@ export function createProgram (
 
 function compile (fileNames: string[], options: ts.CompilerOptions): void {
   const program = createProgram(fileNames, options)
-  program.getSourceFiles().forEach((sourceFile) => {
+  fileNames.forEach((fileName) => {
+    const sourceFile = program.getSourceFile(fileName)
     program.emit(sourceFile, undefined, undefined, undefined, {
       afterDeclarations: [transfromFactory]
     })
@@ -66,5 +68,6 @@ function compile (fileNames: string[], options: ts.CompilerOptions): void {
 
 export function build (): void {
   const tsConfig = readConfigFile('tsconfig.json')
+  console.log(tsConfig.options)
   return compile(tsConfig.fileNames, tsConfig.options)
 }
