@@ -10,7 +10,7 @@ import { readConfigFile } from './utils'
 
 const vueTsReg = /\.vue\.ts$/
 const vueDTsReg = /vue\.d\.ts$/
-const vueImportReg = /^'|\.vue'$/
+const vueImportReg = /^'|\.vue'$/g
 
 function overwriteCompilerHost (host: ts.CompilerHost): ts.CompilerHost {
   const writeFile = host.writeFile
@@ -57,8 +57,7 @@ export function createProgram (
 
 function compile (fileNames: string[], options: ts.CompilerOptions): void {
   const program = createProgram(fileNames, options)
-  fileNames.forEach((fileName) => {
-    const sourceFile = program.getSourceFile(fileName)
+  program.getSourceFiles().forEach((sourceFile) => {
     program.emit(sourceFile, undefined, undefined, undefined, {
       afterDeclarations: [transfromFactory]
     })

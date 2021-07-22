@@ -10,12 +10,13 @@
   "types": "dist/index.d.ts",
   "repository": {
     "type": "git",
-    "url": "git@github.com:mater1996/vue-dts-gen.git"
+    "url": "git@github.com:mater1996/vue-dts-generator.git"
   },
   "scripts": {
     "build": "node scripts/build",
     "gen": "cd ./examples && node ../bin/cli",
-    "release": "release-it"
+    "release": "release-it",
+    "test": "jest --coverage"
   },
   "dependencies": {
     "cac": "^6.7.2"
