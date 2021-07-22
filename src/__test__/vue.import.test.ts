@@ -8,12 +8,12 @@ import ts from 'typescript'
 import { transfromFactory } from '../index'
 
 const vueTsContent = `
-import { Test } from './components/HelloWorld.vue'
+import { Test } from "./components/HelloWorld.vue"
 
 export { Test }
 `
 
-const result = `import { Test } from './components/HelloWorld.vue';
+const result = `import { Test } from "./components/HelloWorld";
 export { Test };
 `
 
@@ -24,6 +24,8 @@ test('import type from vue should return remove .vue suffix', (cb) => {
     target: 1,
     module: 99,
     strict: true,
+    declaration: true,
+    emitDeclarationOnly: true,
   }
   function overwriteCompilerHost(host: ts.CompilerHost): ts.CompilerHost {
     host.writeFile = (fileName, ...args) => {
