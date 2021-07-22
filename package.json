@@ -16,7 +16,6 @@
   },
   "scripts": {
     "build": "node scripts/build",
-    "gen": "cd ./examples && node ../bin/cli",
     "release": "release-it",
     "test": "jest"
   },
