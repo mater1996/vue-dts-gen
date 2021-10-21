@@ -34,6 +34,7 @@ function reportDiagnostics (diagnostics: ts.Diagnostic[]): void {
  */
 export function readConfigFile (configFileName: string): ts.ParsedCommandLine {
   // Read config file
+  configFileName = path.join(process.cwd(), configFileName)
   const configFileText = fs.readFileSync(configFileName).toString()
   // Parse JSON, after removing comments. Just fancier JSON.parse
   const result = ts.parseConfigFileTextToJson(configFileName, configFileText)
